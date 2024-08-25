@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="./styles/output.css" />
+
+    <title>Obrigado pelo seu pedido, <span id="customerName"></span>!"</title>
+  </head>
+  <body class="w-full h-[420px]">
+    <div class="w-full h-full flex flex-col justify-center items-center">
+      <h1 class="text-4xl mt-4 mb-2 font-bold text-pretty">
+        Obrigado pelo seu pedido, <span id="customerName"></span>! 😊
+      </h1>
+      <p class="text-2xl mt-4 mb-2">
+        Seu pedido foi recebido com sucesso. Estará pronto em aproximadamente
+        <span id="preparationTime"></span> minutos.
+      </p>
+    </div>
+  </body>
+  <script>
+    // Obter o nome do cliente e o tempo de preparo da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const customerName = urlParams.get("name");
+    const preparationTime = urlParams.get("time");
+
+    // Atualizar o conteúdo da página com o nome do cliente e o tempo de preparo
+    document.getElementById("customerName").textContent = customerName;
+    document.getElementById("preparationTime").textContent = preparationTime;
+  </script>
+</html>

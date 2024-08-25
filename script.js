@@ -6,8 +6,14 @@ const cartTotal          = document.getElementById("cart-total")
 const checkOutBtn        = document.getElementById("checkout-btn")
 const closeModalBtn      = document.getElementById("close-modal-btn")
 const cartCounter        = document.getElementById("cart-count")
+const userInput          = document.getElementById("customerName")
+const customerFullUser   = document.getElementById("customer-full-name")
+const phoneUserInput     = document.getElementById("phoneUser")
+const numberPhoneUser    = document.getElementById("number-user-phone")
 const addressInput       = document.getElementById("address")
 const addressWarn        = document.getElementById("address-warn")
+const paymentInput       = document.getElementById("payment")
+const paymentMethod      = document.getElementById("payment-method")
 
 // Inicialize arry cart
 let cart = [];
@@ -70,8 +76,6 @@ function addToCart(name, price){
    updateCartModal()
 
 }
-
-
 // Atualiza o carrinho
 function updateCartModal(){
     cartItemsContainer.innerHTML = "";
@@ -137,6 +141,25 @@ function removeItemCart(name){
     }
 }
 
+// pegar nome do usuário
+userInput.addEventListener("input", function(event){
+    let inputValeu = event.currentTarget.value;
+
+    if (inputValeu !==""){
+        userInput.classList.remove("border-red-500")
+        customerFullUser.classList.add("hidden")
+    }
+})
+
+// pegar telefone do usuário
+phoneUserInput.addEventListener("input", function(event){
+    let inputValeu  = event.target.value;
+
+    if(inputValeu !== ""){
+        phoneUserInput.classList.remove("border-red-500")
+        numberPhoneUser.classList.add("hidden")
+    }
+})
 
 // pegar endereço
 addressInput.addEventListener("input", function(event){
@@ -146,14 +169,108 @@ addressInput.addEventListener("input", function(event){
         addressInput.classList.remove("border-red-500")
         addressWarn.classList.add("hidden")
     }
-
 })
 
-// Finalizar pedido
-checkOutBtn.addEventListener("click", function(){
+// pegar a forma de pagamento
+paymentInput.addEventListener("input", function(event){
+    let inputValeu = event.target.value;
+    if(inputValeu !== ""){
+        paymentInput.classList.remove("border=red-500")
+        paymentMethod.classList.add("hidden")
+    }
+})
 
+document.addEventListener("DOMContentLoaded", function() {
+    const data = new Date();
+    const diasSemana = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sábado"];
+    const diaSemana = diasSemana[data.getDay()];
+
+    let horario = ""; // Sem horário padrão
+    let isOpen = false;
+
+    // Definindo os horários de abertura e fechamento
+    const openingHours = {
+        "domingo": { open: null, close: null },
+        "segunda": { open: null, close: null },
+        "terca": { open: "18:00", close: "22:00" },
+        "quarta": { open: "18:00", close: "22:00" },
+        "quinta": { open: "18:00", close: "22:00" },
+        "sexta": { open: "18:00", close: "22:00" },
+        "sábado": { open: "18:00", close: "24:00" }
+    };
+
+    if (openingHours[diaSemana]) {
+        const { open, close } = openingHours[diaSemana];
+        if (open && close) {
+            horario = `${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)} - ${open} às ${close}`;
+            
+            // Convertendo horários para minutos desde a meia-noite para comparação
+            const [openHour, openMinute] = open.split(':').map(Number);
+            const [closeHour, closeMinute] = close.split(':').map(Number);
+            const [currentHour, currentMinute] = [data.getHours(), data.getMinutes()];
+
+            const openTime = openHour * 60 + openMinute;
+            const closeTime = closeHour * 60 + closeMinute;
+            const currentTime = currentHour * 60 + currentMinute;
+
+            console.log(`Horário de abertura: ${openTime} minutos`);
+            console.log(`Horário de fechamento: ${closeTime} minutos`);
+            console.log(`Horário atual: ${currentTime} minutos`);
+
+            isOpen = currentTime >= openTime && currentTime < closeTime;
+        } else {
+            horario = "Estamos fechados";
+        }
+    } else {
+        horario = "Estamos fechados";
+    }
+
+    const openingHoursElement = document.getElementById("opening-hours");
+    openingHoursElement.textContent = horario;
+    openingHoursElement.style.backgroundColor = isOpen ? "green" : "red";
+    openingHoursElement.style.color = "white";
+
+    const dateSpanElement = document.getElementById("date-span");
+    dateSpanElement.style.color = isOpen ? "green" : "red"; // Altere a cor conforme o estado de abertura
+});
+
+// Validar se o restaurante está aberto
+function checkRestaurantOpen() {
+    const data = new Date();
+    const diasSemana = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sábado"];
+    const diaSemana = diasSemana[data.getDay()];
+
+    const openingHours = {
+        "domingo": { open: null, close: null },
+        "segunda": { open: null, close: null },
+        "terca": { open: "18:00", close: "22:00" },
+        "quarta": { open: "18:00", close: "22:00" },
+        "quinta": { open: "18:00", close: "22:00" },
+        "sexta": { open: "18:00", close: "22:00" },
+        "sábado": { open: "18:00", close: "24:00" }
+    };
+
+    const horario = openingHours[diaSemana];
+    if (!horario || !horario.open || !horario.close) {
+        return false; // Fechado
+    }
+
+    // Convertendo horários para minutos desde a meia-noite para comparação
+    const [openHour, openMinute] = horario.open.split(':').map(Number);
+    const [closeHour, closeMinute] = horario.close.split(':').map(Number);
+    const [currentHour, currentMinute] = [data.getHours(), data.getMinutes()];
+
+    const openTime = openHour * 60 + openMinute;
+    const closeTime = closeHour * 60 + closeMinute;
+    const currentTime = currentHour * 60 + currentMinute;
+
+    return currentTime >= openTime && currentTime < closeTime;
+}
+
+// Finalizar pedido
+checkOutBtn.addEventListener("click", function() {
     const isOpen = checkRestaurantOpen();
-    if(!isOpen){
+    if (!isOpen) {
         Toastify({
             text: "Ops o restaurante está fechado!",
             duration: 3000,
@@ -162,29 +279,50 @@ checkOutBtn.addEventListener("click", function(){
             position: "left", // `left`, `center` or `right`
             stopOnFocus: true, // Prevents dismissing of toast on hover
             style: {
-              background: "#ef4444",
+                background: "#ef4444",
             },
-            
-          }).showToast();
+        }).showToast();
 
         return;
     }
 
     // se o endereço for igual a zero
-    if(cart.length === 0) return;
+    if (cart.length === 0) return;
+
+    // se o nome do usuário for vazio
+    if (userInput.value === "") {
+        customerFullUser.classList.remove("hidden");
+        userInput.classList.add("border-red-500");
+        return;
+    }
+
     // se o endereço for vazio
-    if(addressInput.value === ""){
-        addressWarn.classList.remove("hidden")
-        addressInput.classList.add("border-red-500")
+    if (addressInput.value === "") {
+        addressWarn.classList.remove("hidden");
+        addressInput.classList.add("border-red-500");
+        return;
+    }
+
+    // se o telefone do usuário for vazio
+    if (phoneUserInput.value === "") {
+        numberPhoneUser.classList.remove("hidden");
+        phoneUserInput.classList.add("border-red-500");
+        return;
+    }
+
+    // se a forma de pagamento for vazia
+    if (paymentInput.value === "") {
+        paymentMethod.classList.remove("hidden");
+        paymentInput.classList.add("border-red-500");
         return;
     }
 
     // Enviar o pedido para API WhatsApp
     const cartItens = cart.map((item) => {
         const itemTotal = item.price * item.quantity;
-        return(
+        return (
             `${item.name}\n Quantidade: (${item.quantity})\n Preço: R$ ${item.price.toFixed(2)}\n `
-        )
+        );
     }).join("\n");
 
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -193,31 +331,27 @@ checkOutBtn.addEventListener("click", function(){
         currency: "BRL"
     });
 
-    const message = encodeURIComponent(`Pedido:\n${cartItens}\nValor total do pedido: ${totalFormatted}\n`);
+    const message = encodeURIComponent(
+        `Pedido:\n${cartItens}\n\n` +
+        `Valor total do pedido: ${totalFormatted}\n\n` +
+        `Nome: ${userInput.value}\n` +
+        `Endereço: ${addressInput.value}\n` +
+        `Telefone: ${phoneUserInput.value}\n` +
+        `Forma de pagamento: ${paymentInput.value}\n`
+    );
     const phone = "64992642357";
 
-    window.open(`https://wa.me/${phone}?text=${message} Endereço: ${addressInput.value}`, "_blank")
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+
+    // Redirecionar para a página de agradecimento com o nome do cliente e o tempo de preparo
+    const preparationTime = 30; // Defina o tempo de preparo em minutos
+    window.location.href = `thankyou.html?name=${encodeURIComponent(userInput.value)}&time=${preparationTime}`;
+
+    userInput.value = "";
+    addressInput.value = "";
+    phoneUserInput.value = "";
+    paymentInput.value = "";
 
     cart = [];
     updateCartModal();
-
-})
-
-// Validar se o restaurante está aberto
-
-function checkRestaurantOpen(){
-    const data = new Date();
-    const hora = data.getHours();
-    return hora >= 18 && hora < 22;
-}
-
-const spanItem = document.getElementById("date-span");
-const isOpen = checkRestaurantOpen();
-
-if(isOpen){
-    spanItem.classList.remove("bg-red-500");
-    spanItem.classList.add("bg-green-600");
-}else {
-    spanItem.classList.remove("bg-green-500");
-    spanItem.classList.add("bg-red-600");
-}
+});
