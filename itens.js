@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <p class="text-sm">${item.description}</p>
                             <div class="flex items-center gap-2 justify-between mt-3">
                                 <p class="font-bold text-lg">R$ ${item.price.toFixed(2)}</p>
-                                <button class="bg-gray-900 px-5 rounded add-to-cart-btn" data-name="${item.name}" data-price="${item.price}">
+                                <button class="bg-gray-900 px-5 rounded add-to-cart-btn mb-4" data-name="${item.name}" data-price="${item.price}">
                                     <i class="fa fa-cart-plus text-lg text-white"></i>
                                 </button>
                             </div>
